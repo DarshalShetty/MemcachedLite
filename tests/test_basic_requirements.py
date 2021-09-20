@@ -5,7 +5,8 @@ import glob
 from src.client_sdk import ClientSDK
 from src.server_config import SERVER_HOST, SERVER_PORT, SERVER_STORAGE_DIR
 
-files = glob.glob('/YOUR/PATH/*')
+sys.path.extend("../src")
+files = glob.glob(f'{SERVER_STORAGE_DIR}/*')
 for f in files:
     os.remove(f)
 
