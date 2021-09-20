@@ -1,29 +1,68 @@
 import socketserver
+from logging import Logger
+
+from command_parse import MCLiteCommand, NonExistentCommandException, CommandParseException, QuitCommand, \
+    StorageCommand, RetrievalCommand
+from server_logging import init_logger, ConnectionLogAdapter
+from src.response_parse import ErrorResponse
+from src.storage import FileStorage
 
 
-class MyTCPHandler(socketserver.BaseRequestHandler):
-    """
-    The request handler class for our server.
+class MCLiteTCPHandler(socketserver.StreamRequestHandler):
+    storage = FileStorage()
 
-    It is instantiated once per connection to the server, and must
-    override the handle() method to implement communication to the
-    client.
-    """
+    @classmethod
+    def set_logger(cls, logger: Logger):
+        cls.logger = logger
 
     def handle(self):
-        # self.request is the TCP socket connected to the client
-        data = self.request.recv(1024).strip()
-        print("{} wrote:".format(self.client_address[0]))
-        print(data)
-        # just send back the same data, but upper-cased
-        self.request.sendall(data.upper())
+        log_adapter = ConnectionLogAdapter(self.logger, {
+            "client_host": self.client_address[0],
+            "client_port": self.client_address[1],
+        })
+        log_adapter.info("New client connected.")
+        try:
+            while True:
+                text_line = self.rfile.readline()
+
+                try:
+                    comm_abs_synt = MCLiteCommand.parse(text_line, self.rfile)
+                    request_repr = str(comm_abs_synt)
+                    log_adapter.info(f"Request: {request_repr}")
+
+                    command = comm_abs_synt.command
+                    response = b""
+                    if isinstance(command, QuitCommand):
+                        break
+                    elif isinstance(command, StorageCommand):
+                        response = self.storage.set(command.key, command.value, command.value_size_bytes)
+                    elif isinstance(command, RetrievalCommand):
+                        response = self.storage.get(command.keys)
+                    log_adapter.info(f"Response: {response}")
+                    self.wfile.write(response.to_concrete_syntax())
+                except NonExistentCommandException as e:
+                    log_adapter.info(str(e))
+                    response = ErrorResponse("ERROR", None)
+                    self.wfile.write(response.to_concrete_syntax())
+                except CommandParseException as e:
+                    log_adapter.info(str(e))
+                    response = ErrorResponse("CLIENT_ERROR", str(e))
+                    self.wfile.write(response.to_concrete_syntax())
+        except BrokenPipeError as e:
+            log_adapter.warning("Broken pipe error. Disconnecting now...")
+        except Exception as e:
+            log_adapter.error("Unexpected error. Disconnecting now...")
+        finally:
+            log_adapter.info("Client disconnected")
 
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 9889
+    logger = init_logger()
 
     # Create the server, binding to HOST on PORT
-    with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
-        # Activate the server; this will keep running until you
-        # interrupt the program with Ctrl-C
+    with socketserver.ForkingTCPServer((HOST, PORT), MCLiteTCPHandler) as server:
+        MCLiteTCPHandler.set_logger(logger)
+        logger.info(f"Begin listening on {HOST}:{PORT}...")
         server.serve_forever()
+        logger.info("Shutting down.")
