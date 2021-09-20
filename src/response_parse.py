@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from typing import BinaryIO, Union, Literal
-from abstract_syntax_structure import AbstractSyntaxStructure
+from src.abstract_syntax_structure import AbstractSyntaxStructure
 
 
 @dataclass
@@ -21,6 +21,7 @@ class RetrievalResponse(AbstractSyntaxStructure):
     name = 'VALUE'
     values: [ResponseValue]
 
+    possible_names = ["VALUE", "END"]
     parsing_regex = re.compile(r"^VALUE\s+(?P<key>\S+)\s+(?P<value_size_bytes>\d+)$")
 
     def to_concrete_syntax(self) -> bytes:
@@ -52,7 +53,7 @@ class RetrievalResponse(AbstractSyntaxStructure):
 class StorageResponse(AbstractSyntaxStructure):
     name: str
 
-    possible_values = "STORED", "NOT_STORED"
+    possible_names = "STORED", "NOT_STORED"
 
     def to_concrete_syntax(self) -> bytes:
         return f"{self.name}\r\n".encode('utf-8')
@@ -61,7 +62,7 @@ class StorageResponse(AbstractSyntaxStructure):
     def parse(cls, current_buffer: bytes, concrete_syntax_stream: BinaryIO) -> 'StorageResponse':
         response_str = current_buffer.decode('utf-8').strip()
 
-        if response_str not in cls.possible_values:
+        if response_str not in cls.possible_names:
             raise ResponseParseException(f"Invalid MCLite storage command response: {response_str}")
 
         return StorageResponse(response_str)

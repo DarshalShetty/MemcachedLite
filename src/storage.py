@@ -23,9 +23,17 @@ class FileStorage(AbstractStorage):
             pass
 
     def get(self, keys: [str]) -> RetrievalResponse:
-        dummy_value = b"this is a value"
-        return RetrievalResponse(
-            [ResponseValue(key, len(dummy_value), dummy_value) for key in keys])
+        values = []
+        for key in keys:
+            file_name = f"{SERVER_STORAGE_DIR}/{key}"
+            if os.path.exists(file_name):
+                with open(file_name, 'rb') as fh:
+                    value = fh.read(-1)
+                    val_size_bytes = len(value)
+                    values.append(ResponseValue(key, val_size_bytes, value))
+        return RetrievalResponse(values)
 
-    def set(self, key: str, value: bytes, value_size_bytes: int):
-        return StorageResponse("STORED")
+    def set(self, key: str, value: bytes, value_size_bytes: int) -> StorageResponse:
+        with open(f"{SERVER_STORAGE_DIR}/{key}", 'wb') as fh:
+            fh.write(value)
+            return StorageResponse("STORED")

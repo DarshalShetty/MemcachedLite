@@ -27,3 +27,4 @@ Fall 2021 Engineering Cloud Computing course at Indiana University Bloomington.
   sanitized data with our validated storage commands. However, this 
   assumption falls apart if somehow the data is stored in our underlying 
   store not through the server but through compromised filesystem access.
+- File handlers can be cached to prevent the overhead of creating them

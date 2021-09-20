@@ -5,6 +5,7 @@ from command_parse import MCLiteCommand, NonExistentCommandException, CommandPar
     StorageCommand, RetrievalCommand
 from server_logging import init_logger, ConnectionLogAdapter
 from src.response_parse import ErrorResponse
+from src.server_config import SERVER_HOST, SERVER_PORT
 from src.storage import FileStorage
 
 
@@ -57,12 +58,11 @@ class MCLiteTCPHandler(socketserver.StreamRequestHandler):
 
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 9889
     logger = init_logger()
 
     # Create the server, binding to HOST on PORT
-    with socketserver.ForkingTCPServer((HOST, PORT), MCLiteTCPHandler) as server:
+    with socketserver.ForkingTCPServer((SERVER_HOST, SERVER_PORT), MCLiteTCPHandler) as server:
         MCLiteTCPHandler.set_logger(logger)
-        logger.info(f"Begin listening on {HOST}:{PORT}...")
+        logger.info(f"Begin listening on {SERVER_HOST}:{SERVER_PORT}...")
         server.serve_forever()
         logger.info("Shutting down.")

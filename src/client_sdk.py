@@ -4,7 +4,7 @@ import sys
 from io import BufferedReader
 from typing import Union, Dict, TextIO, BinaryIO
 
-from command_parse import MCLiteCommand, StorageCommand, RetrievalCommand, QuitCommand
+from src.command_parse import MCLiteCommand, StorageCommand, RetrievalCommand, QuitCommand
 from src.response_parse import RetrievalResponse, ResponseValue, StorageResponse, ResponseParseException, ErrorResponse
 
 
@@ -44,7 +44,7 @@ class ClientSDK:
         current_buffer = sock_stream.readline().strip()
 
         tokens = current_buffer.split()
-        if len(tokens) > 0 and tokens[0] in StorageResponse.possible_values:
+        if len(tokens) > 0 and tokens[0] in StorageResponse.possible_names:
             received = StorageResponse.parse(current_buffer.encode('utf-8'), sock_stream)
             return received
         else:
@@ -61,7 +61,8 @@ class ClientSDK:
         sock_stream: BufferedReader = self.sock_conn.makefile('rb')
         current_buffer: bytes = sock_stream.readline().strip()
 
-        if current_buffer.startswith(RetrievalResponse.name.encode('utf-8')):
+        tokens = current_buffer.decode('utf-8').split()
+        if len(tokens) > 0 and tokens[0] in RetrievalResponse.possible_names:
             received = RetrievalResponse.parse(current_buffer, sock_stream)
             return received
         else:
@@ -70,4 +71,3 @@ class ClientSDK:
 
     def get_str(self, keys: [str]) -> Dict[str, str]:
         return {val.key: val.value.decode('utf-8') for val in self.get(keys).values}
-
