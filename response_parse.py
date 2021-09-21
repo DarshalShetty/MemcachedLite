@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
-from typing import BinaryIO, Union, Literal
-from src.abstract_syntax_structure import AbstractSyntaxStructure
+from typing import BinaryIO, Union
+from abstract_syntax_structure import AbstractSyntaxStructure
 
 
 @dataclass

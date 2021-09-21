@@ -4,9 +4,9 @@ from logging import Logger
 from command_parse import MCLiteCommand, NonExistentCommandException, CommandParseException, QuitCommand, \
     StorageCommand, RetrievalCommand
 from server_logging import init_logger, ConnectionLogAdapter
-from src.response_parse import ErrorResponse
-from src.server_config import SERVER_HOST, SERVER_PORT
-from src.storage import FileStorage
+from response_parse import ErrorResponse
+from server_config import SERVER_HOST, SERVER_PORT
+from storage import FileStorage
 
 
 class MCLiteTCPHandler(socketserver.StreamRequestHandler):

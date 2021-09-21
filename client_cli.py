@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 from client_sdk import ClientSDK
-from src.server_config import SERVER_HOST, SERVER_PORT
+from server_config import SERVER_HOST, SERVER_PORT
 
 if __name__ == "__main__":
     # Create a socket (SOCK_STREAM means a TCP socket)

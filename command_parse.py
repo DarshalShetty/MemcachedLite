@@ -2,8 +2,8 @@ import re
 from dataclasses import dataclass
 from typing import Literal, Union, BinaryIO
 
-from src.abstract_syntax_structure import AbstractSyntaxStructure
-from src.server_config import SERVER_MAX_VALUE_SIZE, SERVER_KEY_MAX_LENGTH
+from abstract_syntax_structure import AbstractSyntaxStructure
+from server_config import SERVER_MAX_VALUE_SIZE, SERVER_KEY_MAX_LENGTH
 
 StorageCommandName = Literal["set"]
 RetrievalCommandName = Literal["get"]

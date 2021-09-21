@@ -2,10 +2,10 @@ import signal
 import socket
 import sys
 from io import BufferedReader
-from typing import Union, Dict, TextIO, BinaryIO
+from typing import Union, Dict
 
-from src.command_parse import MCLiteCommand, StorageCommand, RetrievalCommand, QuitCommand
-from src.response_parse import RetrievalResponse, ResponseValue, StorageResponse, ResponseParseException, ErrorResponse
+from command_parse import MCLiteCommand, StorageCommand, RetrievalCommand, QuitCommand
+from response_parse import RetrievalResponse, ResponseValue, StorageResponse, ResponseParseException, ErrorResponse
 
 
 class ClientSDK:

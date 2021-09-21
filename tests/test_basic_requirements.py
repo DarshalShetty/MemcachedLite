@@ -2,10 +2,10 @@ import os
 import sys
 import glob
 
-from src.client_sdk import ClientSDK
-from src.server_config import SERVER_HOST, SERVER_PORT, SERVER_STORAGE_DIR
+sys.path.extend("..")
+from client_sdk import ClientSDK
+from server_config import SERVER_HOST, SERVER_PORT, SERVER_STORAGE_DIR
 
-sys.path.extend("../src")
 files = glob.glob(f'{SERVER_STORAGE_DIR}/*')
 for f in files:
     os.remove(f)

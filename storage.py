@@ -2,7 +2,7 @@ import os
 from abc import ABC, abstractmethod
 
 from server_config import SERVER_STORAGE_DIR
-from src.response_parse import RetrievalResponse, ResponseValue, StorageResponse
+from response_parse import RetrievalResponse, ResponseValue, StorageResponse
 
 
 class AbstractStorage(ABC):
