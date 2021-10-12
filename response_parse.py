@@ -69,6 +69,25 @@ class StorageResponse(AbstractSyntaxStructure):
 
 
 @dataclass
+class DeleteResponse(AbstractSyntaxStructure):
+    name: str
+
+    possible_names = "DELETED", "NOT_FOUND"
+
+    def to_concrete_syntax(self) -> bytes:
+        return f"{self.name}\r\n".encode('utf-8')
+
+    @classmethod
+    def parse(cls, current_buffer: bytes, concrete_syntax_stream: BinaryIO) -> 'DeleteResponse':
+        response_str = current_buffer.decode('utf-8').strip()
+
+        if response_str not in cls.possible_names:
+            raise ResponseParseException(f"Invalid MCLite delete command response: {response_str}")
+
+        return DeleteResponse(response_str)
+
+
+@dataclass
 class ErrorResponse(AbstractSyntaxStructure):
     name: str
     message: Union[str, None]

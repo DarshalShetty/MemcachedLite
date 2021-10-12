@@ -4,8 +4,9 @@ import sys
 from io import BufferedReader
 from typing import Union, Dict
 
-from command_parse import MCLiteCommand, StorageCommand, RetrievalCommand, QuitCommand
-from response_parse import RetrievalResponse, ResponseValue, StorageResponse, ResponseParseException, ErrorResponse
+from command_parse import MCLiteCommand, StorageCommand, RetrievalCommand, QuitCommand, DeleteCommand
+from response_parse import RetrievalResponse, ResponseValue, StorageResponse, ResponseParseException, ErrorResponse, \
+    DeleteResponse
 
 
 class ClientSDK:
@@ -71,3 +72,21 @@ class ClientSDK:
 
     def get_str(self, keys: [str]) -> Dict[str, str]:
         return {val.key: val.value.decode('utf-8') for val in self.get(keys).values}
+
+    def delete(self, key: str) -> Union[DeleteResponse, ErrorResponse]:
+
+        comm_abs_syn = MCLiteCommand(DeleteCommand(key))
+        self.sock_conn.sendall(comm_abs_syn.to_concrete_syntax())
+        sock_stream: BufferedReader = self.sock_conn.makefile('rb')
+        current_buffer: bytes = sock_stream.readline().strip()
+
+        tokens = current_buffer.decode('utf-8').split()
+        if len(tokens) > 0 and tokens[0] in DeleteResponse.possible_names:
+            received = DeleteResponse.parse(current_buffer, sock_stream)
+            return received
+        else:
+            response = ErrorResponse.parse(current_buffer, sock_stream)
+            return response
+
+    def delete_str(self, key: str) -> str:
+        return self.delete(key).name

@@ -2,7 +2,7 @@ import socketserver
 from logging import Logger
 
 from command_parse import MCLiteCommand, NonExistentCommandException, CommandParseException, QuitCommand, \
-    StorageCommand, RetrievalCommand
+    StorageCommand, RetrievalCommand, DeleteCommand
 from server_logging import init_logger, ConnectionLogAdapter
 from response_parse import ErrorResponse
 from server_config import SERVER_HOST, SERVER_PORT
@@ -39,6 +39,8 @@ class MCLiteTCPHandler(socketserver.StreamRequestHandler):
                         response = self.storage.set(command.key, command.value, command.value_size_bytes)
                     elif isinstance(command, RetrievalCommand):
                         response = self.storage.get(command.keys)
+                    elif isinstance(command, DeleteCommand):
+                        response = self.storage.delete(command.key)
                     log_adapter.info(f"Response: {response}")
                     self.wfile.write(response.to_concrete_syntax())
                 except NonExistentCommandException as e:

@@ -26,6 +26,28 @@ class QuitCommand(AbstractSyntaxStructure):
 
 
 @dataclass
+class DeleteCommand(AbstractSyntaxStructure):
+    name = "delete"
+    key: str
+
+    parsing_regex = re.compile(r"^delete\s+(?P<key>[^\s]+)\s*$")
+
+    def to_concrete_syntax(self) -> bytes:
+        return self.name.encode('utf-8') + b" " + self.key.encode('utf-8') + b"\r\n"
+
+    @classmethod
+    def parse(cls, current_buffer: bytes, concrete_syntax_stream: BinaryIO) -> 'DeleteCommand':
+        command_str = current_buffer.decode('utf-8').strip()
+        command_match = cls.parsing_regex.search(command_str)
+        if not command_match:
+            raise CommandParseException(f"Invalid MCLite delete command: {command_str}")
+
+        key = command_match.group('key')
+
+        return DeleteCommand(key)
+
+
+@dataclass
 class StorageCommand(AbstractSyntaxStructure):
     name: StorageCommandName
     key: str
@@ -90,7 +112,7 @@ class RetrievalCommand(AbstractSyntaxStructure):
         return RetrievalCommand("get", keys)
 
 
-AbstractCommand = Union[RetrievalCommand, StorageCommand, QuitCommand]
+AbstractCommand = Union[RetrievalCommand, StorageCommand, QuitCommand, DeleteCommand]
 
 
 @dataclass
@@ -108,6 +130,8 @@ class MCLiteCommand(AbstractSyntaxStructure):
             return MCLiteCommand(StorageCommand.parse(current_buffer, concrete_syntax_stream))
         elif current_buffer.startswith(b"quit"):
             return MCLiteCommand(QuitCommand.parse(current_buffer, concrete_syntax_stream))
+        elif current_buffer.startswith(b"delete"):
+            return MCLiteCommand(DeleteCommand.parse(current_buffer, concrete_syntax_stream))
         else:
             raise NonExistentCommandException(f"Command doesn't exist: {current_buffer}")
 

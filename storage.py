@@ -2,7 +2,7 @@ import os
 from abc import ABC, abstractmethod
 
 from server_config import SERVER_STORAGE_DIR
-from response_parse import RetrievalResponse, ResponseValue, StorageResponse
+from response_parse import RetrievalResponse, ResponseValue, StorageResponse, DeleteResponse
 
 
 class AbstractStorage(ABC):
@@ -37,3 +37,10 @@ class FileStorage(AbstractStorage):
         with open(f"{SERVER_STORAGE_DIR}/{key}", 'wb') as fh:
             fh.write(value)
             return StorageResponse("STORED")
+
+    def delete(self, key:str) -> DeleteResponse:
+        file_name = f"{SERVER_STORAGE_DIR}/{key}"
+        if os.path.exists(file_name):
+            os.unlink(file_name)
+            return DeleteResponse('DELETED')
+        return DeleteResponse('NOT_FOUND')
