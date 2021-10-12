@@ -6,7 +6,7 @@
 # load config
 source config.sh
 
-#: <<'END'
+: <<'END'
 # network setup
 gcloud compute networks create mclite-network
 
@@ -17,9 +17,9 @@ gcloud compute firewall-rules create mclite-allow-icmp --network mclite-network 
 # create instances
 gcloud compute instances create mclite-server --zone="$ZONE" --image-family="$IMAGE_FAMILY" --image-project="$IMAGE_PROJECT" --machine-type="$MACHINE_TYPE" --network=mclite-network --tags=server
 gcloud compute instances create mclite-client --zone="$ZONE" --image-family="$IMAGE_FAMILY" --image-project="$IMAGE_PROJECT" --machine-type="$MACHINE_TYPE" --network=mclite-network --tags=client
-#END
+END
 
-#: <<'END'
+: <<'END'
 # common instance setup
 for SERVER_NAME in $(gcloud compute instances list --format 'get(name)')
 do
@@ -27,7 +27,7 @@ gcloud compute scp --zone="$ZONE" --compress ./instance_setup.sh "$GCLOUD_USERNA
 gcloud compute ssh "$GCLOUD_USERNAME"@"$SERVER_NAME" --zone="$ZONE" --command "bash instance_setup.sh"
 gcloud compute scp --zone="$ZONE" --compress ../*.py "$GCLOUD_USERNAME"@"$SERVER_NAME":~
 done
-#END
+END
 
 # Run MemcachedLite server
 gcloud compute scp --zone="$ZONE" --compress ./server_startup.sh "$GCLOUD_USERNAME"@mclite-server:~
@@ -59,10 +59,10 @@ mkdir ../logs
 gcloud compute scp --zone="$ZONE" --compress "$GCLOUD_USERNAME"'@mclite-client:~/*.log' ../logs
 gcloud compute scp --zone="$ZONE" --compress "$GCLOUD_USERNAME"'@mclite-server:~/*.log' ../logs
 
-: <<'END'
+#: <<'END'
 # Resource cleanup
 gcloud compute instances stop $(gcloud compute instances list --format 'get(name)') --zone=$ZONE
 gcloud compute instances delete $(gcloud compute instances list --format 'get (name)') --zone=$ZONE -q
 gcloud compute firewall-rules delete $(gcloud compute firewall-rules list --format 'value(name)') -q
 gcloud compute networks delete mclite-network -q
-END
+#END

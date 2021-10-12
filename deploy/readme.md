@@ -1,5 +1,20 @@
 # Deploying to cloud (GCP)
 
+## Properties stored in ```config.sh```
+These properties are made available in the current shell by running
+```bash
+source config.sh
+```
+- ```ZONE``` -  The regional zone in which gcloud compute instances would be
+  spawned in.
+- ```IMAGE_FAMILY``` and ```IMAGE_PROJECT``` - Determines the operating
+  system of the spawned compute instance.
+- ```MACHINE_TYPE``` - Determines how many CPU cores and how much RAM the
+  spawned compute instance will have.
+- ```GCLOUD_USERNAME``` - The Google cloud account username. Used while running
+  SCP
+  and SSH commands in scripts.
+  
 ## Steps taken to manually run things in GCP on the command line
 - Install the ```gcloud``` CLI SDK by following instructions [here](https://cloud.google.com/sdk/docs/install#linux)
 - Initialize the SDK with some config and authenticate our account with the 
@@ -87,17 +102,20 @@ gcloud compute firewall-rules delete $(gcloud compute firewall-rules list --form
 gcloud compute networks delete mclite-network -q
 ```
 
-## Properties stored in ```config.sh```
-These properties are made available in the current shell by running
-```bash
-source config.sh
-```
-- ```ZONE``` -  The regional zone in which gcloud compute instances would be 
-  spawned in.
-- ```IMAGE_FAMILY``` and ```IMAGE_PROJECT``` - Determines the operating 
-  system of the spawned compute instance.
-- ```MACHINE_TYPE``` - Determines how many CPU cores and how much RAM the 
-  spawned compute instance will have.
-- ```GCLOUD_USERNAME``` - The Google cloud account username. Used while running 
-  SCP 
-  and SSH commands in scripts.
+## Creating ```run_everything.sh```
+
+The steps performed in the previous step manually are automated by writing 
+them down in the script ```run_everything.sh``` in the ```deploy``` 
+directory. A wait loop was added after running the server so that when the 
+client runs its benchmarking scripts, we know that the MemcachedLite service 
+would be up and running to receive the client requests. This script can be 
+run when current working directory is the deploy folder. After the script is 
+run, the server logs, and the client benchmarking logs are stored in the 
+```logs``` directory.
+
+## Benchmarking
+
+The script ```deploy/benchmark.sh``` runs the scripts in the ```tests``` 
+directory on the remote client. Out of those scripts ``````
+
+

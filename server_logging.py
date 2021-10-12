@@ -3,9 +3,10 @@ import logging
 
 def init_logger():
     logger = logging.getLogger('mclite_server')
-    logger.setLevel(logging.INFO)
+    logging_info = logging.INFO
+    logger.setLevel(logging_info)
     ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
+    ch.setLevel(logging_info)
     formatter = logging.Formatter("%(asctime)s > %(name)s > %(levelname)s > %(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)

@@ -29,7 +29,7 @@ class MCLiteTCPHandler(socketserver.StreamRequestHandler):
                 try:
                     comm_abs_synt = MCLiteCommand.parse(text_line, self.rfile)
                     request_repr = str(comm_abs_synt)
-                    log_adapter.info(f"Request: {request_repr}")
+                    log_adapter.debug(f"Request: {request_repr}")
 
                     command = comm_abs_synt.command
                     response = b""
@@ -41,14 +41,14 @@ class MCLiteTCPHandler(socketserver.StreamRequestHandler):
                         response = self.storage.get(command.keys)
                     elif isinstance(command, DeleteCommand):
                         response = self.storage.delete(command.key)
-                    log_adapter.info(f"Response: {response}")
+                    log_adapter.debug(f"Response: {response}")
                     self.wfile.write(response.to_concrete_syntax())
                 except NonExistentCommandException as e:
-                    log_adapter.info(str(e))
+                    log_adapter.debug(str(e))
                     response = ErrorResponse("ERROR", None)
                     self.wfile.write(response.to_concrete_syntax())
                 except CommandParseException as e:
-                    log_adapter.info(str(e))
+                    log_adapter.debug(str(e))
                     response = ErrorResponse("CLIENT_ERROR", str(e))
                     self.wfile.write(response.to_concrete_syntax())
         except BrokenPipeError as e:

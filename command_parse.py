@@ -11,6 +11,7 @@ RetrievalCommandName = Literal["get"]
 protocol_line_end = "\r\n"
 
 
+@dataclass
 class QuitCommand(AbstractSyntaxStructure):
     name = "quit"
 
