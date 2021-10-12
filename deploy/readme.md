@@ -116,6 +116,16 @@ run, the server logs, and the client benchmarking logs are stored in the
 ## Benchmarking
 
 The script ```deploy/benchmark.sh``` runs the scripts in the ```tests``` 
-directory on the remote client. Out of those scripts ``````
+directory on the remote client. Out of those scripts ```test_stress.py``` is 
+the interesting one. It creates multiple connections and performs multiple 
+read and write operations with each connection. The time taken to perform 
+all read and write operations is then printed to stdout. The 
+```deploy/benchmark.sh``` script then runs this python script with 
+increasing number of connections until the python script exits with a 
+non-zero exit code. The outputs of all the python scripts is written into 
+log files that begin with "benchmark". The stress test can go upto 50 
+connections after which the client exits because of a timeout error. I 
+believe this can be fixed by increasing the timeout setting in the python 
+socket client library.
 
 
